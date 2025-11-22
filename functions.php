@@ -1,4 +1,7 @@
 <?php
+
+use Dom\CharacterData;
+
 session_start();
 require_once 'db.php';
 
@@ -23,4 +26,9 @@ function currentUserName(): string
 function currentUserRole(): string
 {
       return $_SESSION['role'] ?? '';
+}
+
+function currentUserId(): int
+{
+      return (int)($_SESSION['user_id'] ?? 0);
 }

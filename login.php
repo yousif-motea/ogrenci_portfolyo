@@ -1,34 +1,49 @@
 <?php
 require_once 'functions.php';
 
-// Eğer zaten giriş yapmışsa dashboard'a at
 if (isLoggedIn()) {
       header('Location: index.php');
       exit;
 }
 
 $hata = '';
+$secili_tip = $_POST['kullanici_tipi'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $username = trim($_POST['username'] ?? '');
       $password = $_POST['password'] ?? '';
 
       if ($username === '' || $password === '') {
-            $hata = 'Kullanıcı adı ve şifre zorunludur.';
+            $hata = 'Lütfen tüm alanları doldurun.';
+      } elseif ($secili_tip === '') {
+            $hata = 'Giriş türünü seçiniz.';
       } else {
             $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
             $stmt->execute([$username]);
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password_hash'])) {
-                  $_SESSION['user_id']  = $user['id'];
-                  $_SESSION['role']     = $user['role'];
-                  $_SESSION['ad_soyad'] = $user['ad'] . ' ' . $user['soyad'];
+                  $role = $user['role'];
+                  $uyumlu = false;
 
-                  header('Location: index.php');
-                  exit;
+                  if ($secili_tip === 'ogrenci' && ($role === 'ogrenci' || $role === 'veli')) {
+                        $uyumlu = true;
+                  } elseif ($secili_tip === 'ogretmen' && in_array($role, ['ogretmen', 'rehber', 'yonetici'])) {
+                        $uyumlu = true;
+                  }
+
+                  if (!$uyumlu) {
+                        $hata = 'Seçilen kullanıcı tipi yetkinizle uyuşmuyor.';
+                  } else {
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['role'] = $user['role'];
+                        $_SESSION['ad_soyad'] = $user['ad'] . ' ' . $user['soyad'];
+                        $_SESSION['username'] = $user['username'];
+                        header('Location: index.php');
+                        exit;
+                  }
             } else {
-                  $hata = 'Kullanıcı adı veya şifre hatalı.';
+                  $hata = 'Kullanıcı bilgileri hatalı.';
             }
       }
 }
@@ -38,27 +53,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
       <meta charset="UTF-8">
-      <title>Öğrenci Portfolyo Sistemi - Giriş</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Giriş | Portfolyo Sistemi</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
       <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="login-body">
       <div class="login-container">
-            <h1>Öğrenci Portfolyo &amp; Gelişim İzleme</h1>
-            <h2>Sisteme Giriş</h2>
+            <h1><i class="fa-solid fa-school"></i> Portfolyo Sistemi</h1>
+            <h2>Hesabınıza giriş yapın</h2>
 
             <?php if ($hata): ?>
-                  <div class="alert-error"><?php echo htmlspecialchars($hata); ?></div>
+                  <div class="alert-error"><i class="fa-solid fa-circle-exclamation"></i> <?php echo htmlspecialchars($hata); ?></div>
             <?php endif; ?>
 
             <form method="post" action="login.php">
-                  <label for="username">Kullanıcı Adı</label>
-                  <input type="text" name="username" id="username" required>
+                  <label>Giriş Tipi</label>
+                  <div class="user-type-group">
+                        <label class="user-type-option">
+                              <input type="radio" name="kullanici_tipi" value="ogrenci" <?php if ($secili_tip === 'ogrenci') echo 'checked'; ?>>
+                              Öğrenci / Veli
+                        </label>
+                        <label class="user-type-option">
+                              <input type="radio" name="kullanici_tipi" value="ogretmen" <?php if ($secili_tip === 'ogretmen') echo 'checked'; ?>>
+                              Öğretmen
+                        </label>
+                  </div>
+
+                  <label for="username">Kullanıcı Adı / No</label>
+                  <input type="text" name="username" id="username" required placeholder="Örn: 1234">
 
                   <label for="password">Şifre</label>
-                  <input type="password" name="password" id="password" required>
+                  <input type="password" name="password" id="password" required placeholder="******">
 
-                  <button type="submit">Giriş Yap</button>
+                  <button type="submit">Giriş Yap <i class="fa-solid fa-arrow-right"></i></button>
             </form>
       </div>
 </body>
