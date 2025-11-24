@@ -45,48 +45,6 @@ $lastPdr = $pdo->query("SELECT p.tarih, p.konu, o.ad, o.soyad, o.sinif, o.sube F
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
       <link rel="stylesheet" href="style.css">
 
-      <style>
-            /* Header içindeki özel stiller (Sadece bu sayfada veya genel kullanılabilir) */
-            .logo-link {
-                  color: white;
-                  text-decoration: none;
-                  display: flex;
-                  align-items: center;
-                  gap: 10px;
-                  font-weight: 700;
-                  font-size: 18px;
-                  transition: opacity 0.2s;
-            }
-
-            .logo-link:hover {
-                  opacity: 0.8;
-            }
-
-            /* Çıkış Butonu Stili */
-            .btn-logout {
-                  background: rgba(255, 255, 255, 0.1);
-                  color: white;
-                  padding: 8px 16px;
-                  border-radius: 6px;
-                  text-decoration: none;
-                  font-size: 13px;
-                  font-weight: 500;
-                  border: 1px solid rgba(255, 255, 255, 0.2);
-                  transition: all 0.2s ease;
-                  display: inline-flex;
-                  align-items: center;
-                  gap: 6px;
-                  margin-left: 15px;
-            }
-
-            .btn-logout:hover {
-                  background: #ef4444;
-                  /* Kırmızı hover */
-                  border-color: #ef4444;
-                  transform: translateY(-1px);
-                  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-            }
-      </style>
 </head>
 
 <body>
